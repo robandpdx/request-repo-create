@@ -10,15 +10,18 @@ jobs:
     outputs:
       payload: ${{ steps.issue_body_parser_request.outputs.payload }}
     steps:
-      - name: Run Issue form parser
+      - name: Parse issue
         id: parse
-        uses: peter-murray/issue-forms-body-parser@v2.0.0
+        uses: onmax/issue-form-parser@v1.4
         with:
-          issue_id: ${{ github.event.issue.number }}
-          separator: '###'
-          label_marker_start: '>>'
-          label_marker_end: '<<'
+          issue_number: ${{ github.event.issue.number }}
 
-      - name: Show parsed data JSON
+      # Examples on how to use the output
+      - name: Show parsed payload data
         run: |
-          echo "${{ steps.parse.outputs.payload }}"
+          # Using the character `'` to prevent all characters enclosed within
+          # them from being treated as special characters (e.g. $ or `)
+          echo '${{ steps.parse.outputs.payload }}'
+
+          # Print the value of the "Name" field
+          echo '${{ fromJson(steps.parse.outputs.payload)["Name"] }}'
