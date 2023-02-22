@@ -1,0 +1,21 @@
+name: Request repo
+description: Request repo
+title: "[REPO] <title>"
+labels: [Repo Request]
+body:
+- type: textarea
+  attributes:
+    label: Name
+    description: Name of repo you are requesting
+    placeholder: |
+      Please follow these naming conventions...
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Owners
+    description: List of repo owners
+    placeholder: |
+      These are the repo owners...
+  validations:
+    required: true
