@@ -2,8 +2,12 @@ name: Request repo
 description: Request repo
 title: "[REPO] <title>"
 labels: [Repo Request]
+assignees:
+  - robandpdx_volcano
+
 body:
-- type: textarea
+- type: input
+  id: repo-name
   attributes:
     label: Name
     description: Name of repo you are requesting
@@ -11,11 +15,31 @@ body:
       Please follow these naming conventions...
   validations:
     required: true
-- type: textarea
+- type: input
+  id: repo-description
   attributes:
-    label: Owners
-    description: List of repo owners
-    placeholder: |
-      These are the repo owners...
+    label: Repo Description
+    description: "Please provide a short description of your repo"
+    placeholder: "Cool repo"
   validations:
     required: true
+- type: dropdown
+  id: team
+  attributes:
+    label: Teams Access?
+    multiple: true
+    options:
+      - Security (default)
+      - UI
+      - Mobile
+      - API
+      - Ops
+      - Business
+- type: checkboxes
+  id: terms
+  attributes:
+    label: Code of Conduct
+    description: By submitting this issue, you agree to follow our [Code of Conduct](https://example.com)
+    options:
+      - label: I agree to follow this project's Code of Conduct
+        required: true
