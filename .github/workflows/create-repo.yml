@@ -21,14 +21,13 @@ jobs:
         env:
           NAME: ${{ fromJson(steps.parse.outputs.payload).Name }}
           DESCRIPTION: ${{ fromJson(steps.parse.outputs.payload).Description }}
-          TEAMS: ${{ fromJson(steps.parse.outputs.payload).Teams }}
         run: |
           # Using the character `'` to prevent all characters enclosed within
           # them from being treated as special characters (e.g. $ or `)
           echo '${{ steps.parse.outputs.payload }}'
           echo 'NAME: ${NAME}'
           echo 'DESCRIPTION: ${DESCRIPTION}'
-          echo 'TEAMS: ${TEAMS}'
+          echo 'TEAMS: ${{ fromJson(steps.parse.outputs.payload).Teams }}'
       - name: Checkout admin repo
         uses: actions/checkout@v2
         with:
@@ -39,7 +38,6 @@ jobs:
         env:
           NAME: ${{ fromJson(steps.parse.outputs.payload).Name }}
           DESCRIPTION: ${{ fromJson(steps.parse.outputs.payload).Description }}
-          TEAMS: ${{ fromJson(steps.parse.outputs.payload).Teams }}
         uses: bluwy/substitute-string-action@v1
         with:
           _input-file: admin/templates/repo-template.yml
@@ -47,7 +45,7 @@ jobs:
           _format-key: '%%key%%'
           NAME: ${NAME}
           DESCRIPTION: ${DESCRIPTION}
-          TEAMS: ${TEAMS}
+          TEAMS: ${{ fromJson(steps.parse.outputs.payload).Teams }}
 
       - name: Show the new repo settings
         run: cat admin/.github/repos/${NAME}.yml
