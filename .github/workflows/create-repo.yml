@@ -5,7 +5,7 @@ on:
     types: [opened]
 
 jobs:
-  parse-issue:
+  create-repo:
     runs-on: self-hosted
     outputs:
       payload: ${{ steps.issue_body_parser_request.outputs.payload }}
