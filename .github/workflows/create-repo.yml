@@ -48,4 +48,6 @@ jobs:
           TEAMS: ${{ join(fromJson(steps.parse.outputs.payload).Teams, ',') }}
 
       - name: Show the new repo settings
+        env:
+          NAME: ${{ fromJson(steps.parse.outputs.payload).Name }}
         run: cat admin/.github/repos/$NAME.yml
