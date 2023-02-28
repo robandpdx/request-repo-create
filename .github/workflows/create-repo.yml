@@ -45,7 +45,7 @@ jobs:
           _format-key: '%%key%%'
           NAME: ${NAME}
           DESCRIPTION: ${DESCRIPTION}
-          TEAMS: ${{ fromJson(steps.parse.outputs.payload).Teams }}
+          TEAMS: ${{ join(fromJson(steps.parse.outputs.payload).Teams, ',') }}
 
       - name: Show the new repo settings
         run: cat admin/.github/repos/${NAME}.yml
