@@ -27,7 +27,7 @@ jobs:
           echo '${{ steps.parse.outputs.payload }}'
           echo 'NAME: ${NAME}'
           echo 'DESCRIPTION: ${DESCRIPTION}'
-          echo 'TEAMS: ${{ fromJson(steps.parse.outputs.payload).Teams }}'
+          echo 'TEAMS: ${{ join(fromJson(steps.parse.outputs.payload).Teams, ',') }}'
       - name: Checkout admin repo
         uses: actions/checkout@v2
         with:
