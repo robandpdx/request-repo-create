@@ -32,7 +32,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           repository: robandpdx_volcano/admin
-          #token: ${{ secrets.ADMIN_TOKEN }}
+          token: ${{ secrets.ADMIN_TOKEN }}
           path: admin
       - name: Create new repo setting from template
         env:
