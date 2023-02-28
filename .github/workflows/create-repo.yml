@@ -35,16 +35,13 @@ jobs:
           token: ${{ secrets.ADMIN_TOKEN }}
           path: admin
       - name: Create new repo setting from template
-        env:
-          NAME: ${{ fromJson(steps.parse.outputs.payload).Name }}
-          DESCRIPTION: ${{ fromJson(steps.parse.outputs.payload).Description }}
         uses: bluwy/substitute-string-action@v1
         with:
           _input-file: admin/templates/repo-template.yml
           _output-file: admin/.github/repos/${{ fromJson(steps.parse.outputs.payload).Name }}.yml
           _format-key: '%%key%%'
-          NAME: $NAME
-          DESCRIPTION: $DESCRIPTION
+          NAME: ${{ fromJson(steps.parse.outputs.payload).Name }}
+          DESCRIPTION: ${{ fromJson(steps.parse.outputs.payload).Description }}
           TEAMS: ${{ join(fromJson(steps.parse.outputs.payload).Teams, ',') }}
 
       - name: Show the new repo settings
