@@ -25,9 +25,9 @@ jobs:
           # Using the character `'` to prevent all characters enclosed within
           # them from being treated as special characters (e.g. $ or `)
           echo '${{ steps.parse.outputs.payload }}'
-          echo 'NAME: ${NAME}'
-          echo 'DESCRIPTION: ${DESCRIPTION}'
-          echo 'TEAMS: ${{ join(fromJson(steps.parse.outputs.payload).Teams, ',') }}'
+          echo "NAME: $NAME"
+          echo "DESCRIPTION: $DESCRIPTION"
+          echo "TEAMS: ${{ join(fromJson(steps.parse.outputs.payload).Teams, ',') }}"
       - name: Checkout admin repo
         uses: actions/checkout@v2
         with:
@@ -41,11 +41,11 @@ jobs:
         uses: bluwy/substitute-string-action@v1
         with:
           _input-file: admin/templates/repo-template.yml
-          _output-file: admin/.github/repos/${NAME}.yml
+          _output-file: admin/.github/repos/$NAME.yml
           _format-key: '%%key%%'
-          NAME: ${NAME}
-          DESCRIPTION: ${DESCRIPTION}
+          NAME: $NAME
+          DESCRIPTION: $DESCRIPTION
           TEAMS: ${{ join(fromJson(steps.parse.outputs.payload).Teams, ',') }}
 
       - name: Show the new repo settings
-        run: cat admin/.github/repos/${NAME}.yml
+        run: cat admin/.github/repos/$NAME.yml
