@@ -26,7 +26,7 @@ body:
 - type: dropdown
   id: team
   attributes:
-    label: Teams Access?
+    label: Teams Access
     multiple: true
     options:
       - Security (default)
@@ -41,5 +41,5 @@ body:
     label: Code of Conduct
     description: By submitting this issue, you agree to follow our [Code of Conduct](https://example.com)
     options:
-      - label: I agree to follow this project's Code of Conduct
+      - label: I agree to follow this Code of Conduct
         required: true
