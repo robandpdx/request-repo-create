@@ -18,7 +18,7 @@ body:
 - type: input
   id: repo-description
   attributes:
-    label: Repo Description
+    label: Description
     description: "Please provide a short description of your repo"
     placeholder: "Cool repo"
   validations:
@@ -26,7 +26,7 @@ body:
 - type: dropdown
   id: team
   attributes:
-    label: Teams Access
+    label: Teams
     multiple: true
     options:
       - Security (default)
