@@ -41,7 +41,7 @@ jobs:
         uses: bluwy/substitute-string-action@v1
         with:
           _input-file: admin/templates/repo-template.yml
-          _output-file: admin/.github/repos/$NAME.yml
+          _output-file: admin/.github/repos/${{ fromJson(steps.parse.outputs.payload).Name }}.yml
           _format-key: '%%key%%'
           NAME: $NAME
           DESCRIPTION: $DESCRIPTION
