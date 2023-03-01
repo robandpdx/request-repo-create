@@ -44,6 +44,22 @@ jobs:
           DESCRIPTION: ${{ fromJson(steps.parse.outputs.payload).Description }}
           TEAMS: ${{ join(fromJson(steps.parse.outputs.payload).Teams, ',') }}
 
+      - name: Add teams to repos access config
+        env:
+          TEAMS: ${{ join(fromJson(steps.parse.outputs.payload).Teams, ',') }}
+        run: |
+          echo Adding $TEAMS to repo access config
+          IFS=',' read -r -a array <<< "$TEAMS"
+
+          for team in "${array[@]}"
+          do
+              echo "Adding $team to repo access config"
+              cat <<EOF >> templates/repo-template.yml
+            - name: $team
+              permission: push
+          EOF
+          done
+
       - name: Show the new repo settings
         env:
           NAME: ${{ fromJson(steps.parse.outputs.payload).Name }}
