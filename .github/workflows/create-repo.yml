@@ -46,6 +46,7 @@ jobs:
 
       - name: Add teams to repos access config
         env:
+          NAME: ${{ fromJson(steps.parse.outputs.payload).Name }}
           TEAMS: ${{ join(fromJson(steps.parse.outputs.payload).Teams, ',') }}
         run: |
           echo Adding $TEAMS to repo access config
@@ -54,7 +55,7 @@ jobs:
           for team in "${array[@]}"
           do
               echo "Adding $team to repo access config"
-              cat <<EOF >> templates/repo-template.yml
+              cat <<EOF >> admin/.github/repos/$NAME.yml
             - name: $team
               permission: push
           EOF
