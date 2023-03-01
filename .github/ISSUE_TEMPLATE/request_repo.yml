@@ -29,7 +29,7 @@ body:
     label: Teams
     multiple: true
     options:
-      - Security (default)
+      - Security
       - UI
       - Mobile
       - API
