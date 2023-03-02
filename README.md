@@ -10,7 +10,7 @@ As a GitHub Enterprise Admin, you have certian standards for all repos in a targ
  - access via team permissions
  - anything else that [safe-settings](https://github.com/github/safe-settings) can provide
 
- You simnply don't want developer running naked in the streets, creating repos all willy-nilly!!
+ You simply don't want developer running naked in the streets, creating repos all willy-nilly!!
 
 ## Solution
 Disable repo creating for all users in the target org. Users requesting a new repo will open an issue in this repo, triggering a GitHub actions workflow that will create a new repo settings file for the requested repo in your [safe-settings](https://github.com/github/safe-settings) admin repo. The new repos settings file is created from a template stored in your [safe-setting](https://github.com/github/safe-settings) admin repo. [Safe-settings](https://github.com/github/safe-settings) will apply the standard rules, configured by the admins for all repos. Upon successul addition of the new repo settings file to the [safe-setting](https://github.com/github/safe-settings) admin repo, the issue will be closed. If [safe-setting](https://github.com/github/safe-settings) is setup and working properly, the new repo will be created according to the new repo settings file.  
