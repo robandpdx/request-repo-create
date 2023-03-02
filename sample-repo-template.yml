@@ -1,0 +1,82 @@
+# Copy this file to your safe-setting admin repo.
+# Create a repository variable called TEMPLATE with the path 
+# to this file in the admin repo. 
+
+repository: 
+  name: %%NAME%%
+  description: %%DESCRIPTION%%
+ 
+  # Needed to create the new repo
+  force_create: true
+  auto_init: true
+  # optional if not using a template repo
+  gitignore_template: Node
+  license_template: mit
+  # optional if using a template repo
+  template: new-repo-template
+
+  homepage: https://example.github.io/
+  topics: 
+  - github
+  - safe-settings
+  - new-topic
+  - another-topic
+  - topic-12
+  
+  security:
+   enableVulnerabilityAlerts: true
+
+  private: false
+  visibility: private
+  has_issues: true
+  has_projects: false
+  has_wiki: false
+  default_branch: main
+  allow_squash_merge: true
+  allow_merge_commit: true
+  allow_rebase_merge: true
+  allow_auto_merge: false
+  delete_branch_on_merge: true  
+
+labels:
+  - name: bug
+    color: CC0000
+    description: An issue with the system
+
+  - name: feature
+    color: '#336699'
+    description: New functionality.
+
+  - name: first-timers-only
+    oldname: Help Wanted
+    color: '#326699'
+
+  - name: new-label
+    oldname: Help Wanted
+    color: '#326699'
+
+branches:
+  - name: default
+    protection:
+      required_pull_request_reviews:
+        required_approving_review_count: 1
+        dismiss_stale_reviews: true
+        require_code_owner_reviews: true
+        dismissal_restrictions:
+          users: []
+          teams: []
+      required_status_checks:
+        strict: true
+        contexts: []
+      enforce_admins: false
+      restrictions:
+        apps: []
+        users: []
+        teams: []
+        
+validator:
+  pattern: '[a-zA-Z0-9_-]+-[a-zA-Z0-9_-]+-[0-9]+.*' 
+
+teams:
+  - name: repo-admins
+    permission: admin
