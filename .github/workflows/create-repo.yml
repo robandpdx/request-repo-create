@@ -75,3 +75,8 @@ jobs:
           default_author: github_actor
           message: Repo settings for ${{ fromJson(steps.parse.outputs.payload).Name }}
           push: true
+      - name: Close Issue
+        uses: peter-evans/close-issue@v2
+        with:
+          issue-number: ${{ github.event.issue.number }}
+          comment: Auto-closing issue upon successful repo creation
