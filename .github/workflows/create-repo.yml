@@ -5,10 +5,10 @@ on:
     types: [opened]
 
 jobs:
-  create-repo:
+  parse-issue:
     runs-on: self-hosted
     outputs:
-      payload: ${{ steps.issue_body_parser_request.outputs.payload }}
+      payload: ${{ steps.parse.outputs.payload }}
     steps:
       - name: Parse issue
         id: parse
@@ -29,9 +29,14 @@ jobs:
           echo "NAME: $NAME"
           echo "DESCRIPTION: $DESCRIPTION"
           echo "TEAMS: $TEAMS"
+  check-name:
+    runs-on: self-hosted
+    needs: parse-issue
+    if: needs.parse-issue.outputs.payload != '{}'
+    steps:
       - name: Check repo name
         env: 
-          NAME: ${{ fromJson(steps.parse.outputs.payload).Name }}
+          NAME: ${{ fromJson(needs.parse-issue.outputs.payload).Name }}
           REGEX: ${{ vars.REGEX }}
         run: |
           if [[ -z ${REGEX+x} || $NAME =~ $REGEX ]]; then
@@ -40,6 +45,11 @@ jobs:
             echo "Does not match naming standard."
             exit 1
           fi
+  create-repo:
+    runs-on: self-hosted
+    needs: check-name
+    if: needs.parse-issue.outputs.payload != '{}'
+    steps:
       - name: Checkout admin repo
         uses: actions/checkout@v2
         with:
@@ -50,16 +60,16 @@ jobs:
         uses: bluwy/substitute-string-action@v1
         with:
           _input-file: admin/${{ vars.TEMPLATE }}
-          _output-file: admin/.github/repos/${{ fromJson(steps.parse.outputs.payload).Name }}.yml
+          _output-file: admin/.github/repos/${{ fromJson(needs.parse-issue.outputs.payload).Name }}.yml
           _format-key: '%%key%%'
-          NAME: ${{ fromJson(steps.parse.outputs.payload).Name }}
-          DESCRIPTION: ${{ fromJson(steps.parse.outputs.payload).Description }}
-          TEAMS: ${{ join(fromJson(steps.parse.outputs.payload).Teams, ',') }}
+          NAME: ${{ fromJson(needs.parse-issue.outputs.payload).Name }}
+          DESCRIPTION: ${{ fromJson(needs.parse-issue.outputs.payload).Description }}
+          TEAMS: ${{ join(fromJson(needs.parse-issue.outputs.payload).Teams, ',') }}
 
       - name: Add teams to repos access config
         env:
-          NAME: ${{ fromJson(steps.parse.outputs.payload).Name }}
-          TEAMS: ${{ join(fromJson(steps.parse.outputs.payload).Teams, ',') }}
+          NAME: ${{ fromJson(needs.parse-issue.outputs.payload).Name }}
+          TEAMS: ${{ join(fromJson(needs.parse-issue.outputs.payload).Teams, ',') }}
         run: |
           echo Adding $TEAMS to repo access config
           IFS=',' read -r -a array <<< "$TEAMS"
@@ -75,19 +85,31 @@ jobs:
 
       - name: Show the new repo settings
         env:
-          NAME: ${{ fromJson(steps.parse.outputs.payload).Name }}
+          NAME: ${{ fromJson(needs.parse-issue.outputs.payload).Name }}
         run: cat admin/.github/repos/$NAME.yml
 
       - name: Commit and push new repo settings file
         uses: EndBug/add-and-commit@v9
         with:
-          add: .github/repos/${{ fromJson(steps.parse.outputs.payload).Name }}.yml
+          add: .github/repos/${{ fromJson(needs.parse-issue.outputs.payload).Name }}.yml
           cwd: ./admin
           default_author: github_actor
-          message: Repo settings for ${{ fromJson(steps.parse.outputs.payload).Name }}
+          message: Repo settings for ${{ fromJson(needs.parse-issue.outputs.payload).Name }}
           push: true
       - name: Close Issue
         uses: peter-evans/close-issue@v2
         with:
           issue-number: ${{ github.event.issue.number }}
           comment: Auto-closing issue upon successful repo creation
+  failure:
+    # comment on issue on failure
+    needs: check-name
+    runs-on: self-hosted
+    if: ${{ always() && (needs.check-name.result == 'failure') }}
+    steps:
+      - name: Comment on issue
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          issue-number: ${{ github.event.issue.number }}
+          body: |
+            The repo name does not adhere to the naming standard.
