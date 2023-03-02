@@ -32,13 +32,13 @@ jobs:
       - name: Checkout admin repo
         uses: actions/checkout@v2
         with:
-          repository: robandpdx-volcano/admin
+          repository: ${{ env.ORG }}/admin
           token: ${{ secrets.ADMIN_TOKEN }}
           path: admin
       - name: Create new repo setting from template
         uses: bluwy/substitute-string-action@v1
         with:
-          _input-file: admin/templates/repo-template.yml
+          _input-file: admin/${{ env.TEMPLATE }}
           _output-file: admin/.github/repos/${{ fromJson(steps.parse.outputs.payload).Name }}.yml
           _format-key: '%%key%%'
           NAME: ${{ fromJson(steps.parse.outputs.payload).Name }}
