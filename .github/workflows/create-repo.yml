@@ -29,6 +29,17 @@ jobs:
           echo "NAME: $NAME"
           echo "DESCRIPTION: $DESCRIPTION"
           echo "TEAMS: $TEAMS"
+      - name: Check repo name
+        env: 
+          NAME: ${{ fromJson(steps.parse.outputs.payload).Name }}
+          REGEX: ${{ vars.ORG }}
+        run: |
+          if [[ -n ${REGEX+x} && $NAME =~ $REGEX ]]; then
+            echo "Naming standard satisfied!"
+          else
+            echo "Does not match naming standard."
+            exit 1
+          fi
       - name: Checkout admin repo
         uses: actions/checkout@v2
         with:
