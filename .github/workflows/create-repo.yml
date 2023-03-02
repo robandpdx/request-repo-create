@@ -47,7 +47,7 @@ jobs:
           fi
   create-repo:
     runs-on: self-hosted
-    needs: check-name
+    needs: [parse-issue, check-name]
     if: needs.parse-issue.outputs.payload != '{}'
     steps:
       - name: Checkout admin repo
