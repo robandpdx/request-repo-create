@@ -21,13 +21,14 @@ jobs:
         env:
           NAME: ${{ fromJson(steps.parse.outputs.payload).Name }}
           DESCRIPTION: ${{ fromJson(steps.parse.outputs.payload).Description }}
+          TEAMS: ${{ join(fromJson(steps.parse.outputs.payload).Teams, ',') }}
         run: |
           # Using the character `'` to prevent all characters enclosed within
           # them from being treated as special characters (e.g. $ or `)
           echo '${{ steps.parse.outputs.payload }}'
           echo "NAME: $NAME"
           echo "DESCRIPTION: $DESCRIPTION"
-          echo "TEAMS: ${{ join(fromJson(steps.parse.outputs.payload).Teams, ',') }}"
+          echo "TEAMS: $TEAMS"
       - name: Checkout admin repo
         uses: actions/checkout@v2
         with:
