@@ -32,9 +32,9 @@ jobs:
       - name: Check repo name
         env: 
           NAME: ${{ fromJson(steps.parse.outputs.payload).Name }}
-          REGEX: ${{ vars.ORG }}
+          REGEX: ${{ vars.REGEX }}
         run: |
-          if [[ -n ${REGEX+x} && $NAME =~ $REGEX ]]; then
+          if [[ -z ${REGEX+x} || $NAME =~ $REGEX ]]; then
             echo "Naming standard satisfied!"
           else
             echo "Does not match naming standard."
