@@ -35,67 +35,84 @@ jobs:
     if: needs.parse-issue.outputs.payload != '{}'
     steps:
       - name: Check repo name
-        env: 
-          NAME: ${{ fromJson(needs.parse-issue.outputs.payload).Name }}
-          REGEX: ${{ vars.REGEX }}
-        run: |
-          if [[ -z ${REGEX+x} || $NAME =~ $REGEX ]]; then
-            echo "Naming standard satisfied!"
-          else
-            echo "Does not match naming standard."
-            exit 1
-          fi
+        id: check-repo-name
+        uses: robandpdx/check-value-regex@v1.0.2
+        with:
+          input: ${{ fromJson(needs.parse-issue.outputs.payload).Name }}
+          regex: ${{ vars.REGEX }}
+      - name: Fail is naming standard not met
+        if: steps.check-repo-name.outputs.matches != 'true'
+        run: exit 1
   create-repo:
     runs-on: self-hosted
     needs: [parse-issue, check-name]
     if: needs.parse-issue.outputs.payload != '{}'
     steps:
-      - name: Checkout admin repo
-        uses: actions/checkout@v2
-        with:
-          repository: ${{ vars.ORG }}/admin
-          token: ${{ secrets.ADMIN_TOKEN }}
-          path: admin
-      - name: Create new repo setting from template
-        uses: bluwy/substitute-string-action@v1
-        with:
-          _input-file: admin/${{ vars.TEMPLATE }}
-          _output-file: admin/.github/repos/${{ fromJson(needs.parse-issue.outputs.payload).Name }}.yml
-          _format-key: '%%key%%'
+      - name: Create new repo
+        env:
+          TEMPLATE: ${{ vars.TEMPLATE}}
           NAME: ${{ fromJson(needs.parse-issue.outputs.payload).Name }}
           DESCRIPTION: ${{ fromJson(needs.parse-issue.outputs.payload).Description }}
-          TEAMS: ${{ join(fromJson(needs.parse-issue.outputs.payload).Teams, ',') }}
+          ADMIN_TEAM: ${{ vars.ADMIN_TEAM }}
+          GH_TOKEN: ${{ secrets.ADMIN_TOKEN }}
+          ORG: ${{ vars.ORG }}
+          VISIBILITY: ${{ vars.VISIBILITY }}
+        run: |
+          if [ -n "$TEMPLATE" ]; then
+            TEMPLATE_INCLUDE="--template $ORG/$TEMPLATE"
+          else
+            README_INCLUDE="--add-readme"
+          fi
+          case $VISIBILITY in
+            public)
+              VISIBILITY_INCLUDE="--public"
+              ;;
+            private)
+              VISIBILITY_INCLUDE="--private"
+              ;;
+            internal)
+              VISIBILITY_INCLUDE="--internal"
+              ;;
+            *)
+              VISIBILITY_INCLUDE="--private"
+              ;;
+          esac
+
+          gh repo create $ORG/$NAME \
+            --description "$DESCRIPTION" \
+            $TEMPLATE_INCLUDE \
+            $README_INCLUDE \
+            $VISIBILITY_INCLUDE
 
       - name: Add teams to repos access config
         env:
+          ADMIN_TEAM: ${{ vars.ADMIN_TEAM }}
           NAME: ${{ fromJson(needs.parse-issue.outputs.payload).Name }}
           TEAMS: ${{ join(fromJson(needs.parse-issue.outputs.payload).Teams, ',') }}
+          ORG: ${{ vars.ORG }}
+          GH_TOKEN: ${{ secrets.ADMIN_TOKEN }}
         run: |
           echo Adding $TEAMS to repo access config
           IFS=',' read -r -a array <<< "$TEAMS"
-
           for team in "${array[@]}"
           do
-              echo "Adding $team to repo access config"
-              cat <<EOF >> admin/.github/repos/$NAME.yml
-            - name: $team
-              permission: push
-          EOF
+            gh api \
+              --method PUT \
+              -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              /orgs/$ORG/teams/$team/repos/$ORG/$NAME \
+              -f "permission=push"
           done
+        
+          if [ -n "$ADMIN_TEAM" ]; then
+            gh api \
+              --method PUT \
+              -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              /orgs/$ORG/teams/$ADMIN_TEAM/repos/$ORG/$NAME \
+              -f "permission=admin"
+          fi
 
-      - name: Show the new repo settings
-        env:
-          NAME: ${{ fromJson(needs.parse-issue.outputs.payload).Name }}
-        run: cat admin/.github/repos/$NAME.yml
-
-      - name: Commit and push new repo settings file
-        uses: EndBug/add-and-commit@v9
-        with:
-          add: .github/repos/${{ fromJson(needs.parse-issue.outputs.payload).Name }}.yml
-          cwd: ./admin
-          default_author: github_actor
-          message: Repo settings for ${{ fromJson(needs.parse-issue.outputs.payload).Name }}
-          push: true
       - name: Close Issue
         uses: peter-evans/close-issue@v2
         with:
