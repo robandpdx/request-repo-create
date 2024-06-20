@@ -20,16 +20,13 @@ Disable repo creating for all users in the target org. Users requesting a new re
 ## Configuration
 
 You need to define the following secrets in this repo:  
-`ADMIN_TOKEN` -  This needs to have write access to the safe-settings admin repo.  
+`ADMIN_TOKEN` -  This needs to have write access to the org where the new repos will be created.  
 
 You need to define the following repository varaibles in this repo:  
-`ORG` - The org where [safe-settings](https://github.com/github/safe-settings) is installed and configured with an admin repo.  
+`ORG` - The org where where the new repos will be created.  
 `ADMIN_TEAM` - The team in the target org that has admin access to the new repo.  
 `REGEX` - (Optional) A regular expression which the repo names must adhere to. If the repo name does not match this regex, the workflow will fail and a comment will be added to the issue. If this is not defined, no naming restrictions will be applied.  
 `TEMPLATE` - (Optional) The name of a template repo to create the new repos from.  
 `VISIBILITY` - The visibility of the new repo. Can be `private`, `public`, or `internal`. If this is not defined, the new repo will be private.
 
 Customise the [issue template](.github/ISSUE_TEMPLATE/request_repo.yml), editing the teams field as needed. If you are implementing a naming standard for new repos, you should probably detail the standard in the issue template as well.
-
-## Troubleshooting
-If the workflow succeeds, but the repo fails to be created, there is likely a failure is [safe-setting](https://github.com/github/safe-settings). Check the [safe-setting](https://github.com/github/safe-settings) logs for more info.  
